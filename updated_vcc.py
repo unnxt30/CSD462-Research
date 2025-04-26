@@ -398,60 +398,78 @@ class PerformanceMetrics:
 
 def plot_comparison(standard_metrics, weighted_metrics, save_path=None):
     """Enhanced visualization of performance comparison"""
-    plt.figure(figsize=(20, 15))
+    # Figure 1: Rewards comparison
+    plt.figure(figsize=(12, 6))
+    plt.plot(standard_metrics.rewards, label="Standard A3C", alpha=0.7, color='r')
+    plt.plot(weighted_metrics.rewards, label="Weighted A3C", alpha=0.7, color='b')
+    plt.title("Raw Rewards Over Time", fontsize=14)
+    plt.xlabel("Episodes", fontsize=12)
+    plt.ylabel("Reward", fontsize=12)
+    plt.legend(fontsize=11)
+    plt.grid(True, alpha=0.3)
+    plt.tight_layout()
+    if save_path:
+        plt.savefig(f"{save_path}_rewards.png")
+    plt.show()
     
-    # 1. Raw Rewards Comparison
-    plt.subplot(3, 2, 1)
-    plt.plot(standard_metrics.rewards, label="Standard A3C", alpha=0.6)
-    plt.plot(weighted_metrics.rewards, label="Weighted A3C", alpha=0.6)
-    plt.title("Raw Rewards Over Time")
-    plt.xlabel("Episodes")
-    plt.ylabel("Reward")
-    plt.legend()
-    plt.grid(True)
+    # Figure 2: Fairness comparison
+    plt.figure(figsize=(12, 6))
+    plt.plot(standard_metrics.fairness_scores, label="Standard A3C", alpha=0.7, color='r')
+    plt.plot(weighted_metrics.fairness_scores, label="Weighted A3C", alpha=0.7, color='b')
+    plt.title("Fairness Scores Over Time", fontsize=14)
+    plt.xlabel("Episodes", fontsize=12)
+    plt.ylabel("Fairness Score", fontsize=12)
+    plt.legend(fontsize=11)
+    plt.grid(True, alpha=0.3)
+    plt.tight_layout()
+    if save_path:
+        plt.savefig(f"{save_path}_fairness.png")
+    plt.show()
     
-    # 2. Fairness Comparison
-    plt.subplot(3, 2, 2)
-    plt.plot(standard_metrics.fairness_scores, label="Standard A3C", alpha=0.6)
-    plt.plot(weighted_metrics.fairness_scores, label="Weighted A3C", alpha=0.6)
-    plt.title("Fairness Scores Over Time")
-    plt.xlabel("Episodes")
-    plt.ylabel("Fairness Score")
-    plt.legend()
-    plt.grid(True)
+    # Figure 3: Priority fulfillment
+    plt.figure(figsize=(12, 6))
+    plt.plot(standard_metrics.priority_fulfillment, label="Standard A3C", alpha=0.7, color='r')
+    plt.plot(weighted_metrics.priority_fulfillment, label="Weighted A3C", alpha=0.7, color='b')
+    plt.title("Priority Fulfillment Over Time", fontsize=14)
+    plt.xlabel("Episodes", fontsize=12)
+    plt.ylabel("Priority Fulfillment", fontsize=12)
+    plt.legend(fontsize=11)
+    plt.grid(True, alpha=0.3)
+    plt.tight_layout()
+    if save_path:
+        plt.savefig(f"{save_path}_priority.png")
+    plt.show()
     
-    # 3. Priority Fulfillment
-    plt.subplot(3, 2, 3)
-    plt.plot(standard_metrics.priority_fulfillment, label="Standard A3C", alpha=0.6)
-    plt.plot(weighted_metrics.priority_fulfillment, label="Weighted A3C", alpha=0.6)
-    plt.title("Priority Fulfillment Over Time")
-    plt.xlabel("Episodes")
-    plt.ylabel("Priority Fulfillment")
-    plt.legend()
-    plt.grid(True)
+    # Figure 4: Energy consumption
+    plt.figure(figsize=(12, 6))
+    plt.plot(standard_metrics.energy_consumptions, label="Standard A3C", alpha=0.7, color='r')
+    plt.plot(weighted_metrics.energy_consumptions, label="Weighted A3C", alpha=0.7, color='b')
+    plt.title("Energy Consumption Over Time", fontsize=14)
+    plt.xlabel("Episodes", fontsize=12)
+    plt.ylabel("Energy", fontsize=12)
+    plt.legend(fontsize=11)
+    plt.grid(True, alpha=0.3)
+    plt.tight_layout()
+    if save_path:
+        plt.savefig(f"{save_path}_energy.png")
+    plt.show()
     
-    # 4. Energy Consumption
-    plt.subplot(3, 2, 4)
-    plt.plot(standard_metrics.energy_consumptions, label="Standard A3C", alpha=0.6)
-    plt.plot(weighted_metrics.energy_consumptions, label="Weighted A3C", alpha=0.6)
-    plt.title("Energy Consumption Over Time")
-    plt.xlabel("Episodes")
-    plt.ylabel("Energy")
-    plt.legend()
-    plt.grid(True)
+    # Figure 5: Latency comparison
+    plt.figure(figsize=(12, 6))
+    plt.plot(standard_metrics.latencies, label="Standard A3C", alpha=0.7, color='r')
+    plt.plot(weighted_metrics.latencies, label="Weighted A3C", alpha=0.7, color='b')
+    plt.title("Latency Over Time", fontsize=14)
+    plt.xlabel("Episodes", fontsize=12)
+    plt.ylabel("Latency", fontsize=12)
+    plt.legend(fontsize=11)
+    plt.grid(True, alpha=0.3)
+    plt.tight_layout()
+    if save_path:
+        plt.savefig(f"{save_path}_latency.png")
+    plt.show()
     
-    # 5. Latency Comparison
-    plt.subplot(3, 2, 5)
-    plt.plot(standard_metrics.latencies, label="Standard A3C", alpha=0.6)
-    plt.plot(weighted_metrics.latencies, label="Weighted A3C", alpha=0.6)
-    plt.title("Latency Over Time")
-    plt.xlabel("Episodes")
-    plt.ylabel("Latency")
-    plt.legend()
-    plt.grid(True)
-    
-    # 6. Statistical Comparison
-    plt.subplot(3, 2, 6)
+    # Figure 6: Statistical comparison
+    plt.figure(figsize=(14, 7))
     metrics = ['Reward', 'Fairness', 'Priority', 'Energy', 'Latency']
     standard_values = [
         np.mean(standard_metrics.rewards),
@@ -468,18 +486,49 @@ def plot_comparison(standard_metrics, weighted_metrics, save_path=None):
         np.mean(weighted_metrics.latencies)
     ]
     
+    # Percentage improvement
+    improvements = [
+        ((w - s) / max(abs(s), 0.001)) * 100 for w, s in zip(weighted_values, standard_values)
+    ]
+    
     x = np.arange(len(metrics))
     width = 0.35
-    plt.bar(x - width/2, standard_values, width, label='Standard A3C')
-    plt.bar(x + width/2, weighted_values, width, label='Weighted A3C')
-    plt.title("Mean Performance Comparison")
-    plt.xticks(x, metrics)
-    plt.legend()
-    plt.grid(True)
+    fig, ax1 = plt.subplots(figsize=(14, 7))
+    
+    # Bar chart for values
+    bars1 = ax1.bar(x - width/2, standard_values, width, label='Standard A3C', color='r', alpha=0.7)
+    bars2 = ax1.bar(x + width/2, weighted_values, width, label='Weighted A3C', color='b', alpha=0.7)
+    ax1.set_xlabel('Metrics', fontsize=12)
+    ax1.set_ylabel('Mean Values', fontsize=12)
+    ax1.set_title('Performance Metrics Comparison', fontsize=14)
+    ax1.set_xticks(x)
+    ax1.set_xticklabels(metrics, fontsize=11)
+    ax1.legend(loc='upper left', fontsize=11)
+    
+    # Percentage improvement on secondary y-axis
+    ax2 = ax1.twinx()
+    ax2.plot(x, improvements, 'go-', linewidth=2, label='Improvement (%)', alpha=0.8)
+    ax2.set_ylabel('Improvement (%)', color='g', fontsize=12)
+    ax2.tick_params(axis='y', labelcolor='g')
+    ax2.legend(loc='upper right', fontsize=11)
+    
+    # Add value labels on bars
+    def add_labels(bars):
+        for bar in bars:
+            height = bar.get_height()
+            ax1.annotate(f'{height:.2f}',
+                         xy=(bar.get_x() + bar.get_width() / 2, height),
+                         xytext=(0, 3),
+                         textcoords="offset points",
+                         ha='center', va='bottom',
+                         fontsize=9)
+    
+    add_labels(bars1)
+    add_labels(bars2)
     
     plt.tight_layout()
     if save_path:
-        plt.savefig(save_path)
+        plt.savefig(f"{save_path}_comparison.png")
     plt.show()
 
 # Load sample.csv job scheduling data
@@ -586,28 +635,26 @@ for episode in range(100):
         standard_aggregate.append(standard_avg)
 
 # Plot comparison
-plt.figure(figsize=(15, 8))
+plt.figure(figsize=(12, 6))
+plt.plot(range(1, 101), standard_rewards, label="Standard A3C", color='r', alpha=0.6)
+plt.plot(range(1, 101), weighted_rewards, label="Weighted A3C", color='b', alpha=0.6)
+plt.xlabel("Episodes", fontsize=12)
+plt.ylabel("Raw Reward", fontsize=12)
+plt.title("Raw Rewards Comparison", fontsize=14)
+plt.legend(fontsize=11)
+plt.grid(True, alpha=0.3)
+plt.tight_layout()
+plt.show()
 
-# Plot raw rewards
-plt.subplot(2, 1, 1)
-plt.plot(range(1, 101), standard_rewards, label="Standard A3C", color='r', alpha=0.3)
-plt.plot(range(1, 101), weighted_rewards, label="Weighted A3C", color='b', alpha=0.3)
-plt.xlabel("Episodes")
-plt.ylabel("Raw Reward")
-plt.title("Raw Rewards Comparison")
-plt.legend()
-plt.grid(True)
-
-# Plot moving average rewards
-plt.subplot(2, 1, 2)
+# Plot moving average rewards in a separate figure
+plt.figure(figsize=(12, 6))
 plt.plot(range(window_size, 101), standard_aggregate, label="Standard A3C (MA)", color='r', linewidth=2)
 plt.plot(range(window_size, 101), weighted_aggregate, label="Weighted A3C (MA)", color='b', linewidth=2)
-plt.xlabel("Episodes")
-plt.ylabel("Moving Average Reward (window=10)")
-plt.title("Moving Average Rewards Comparison")
-plt.legend()
-plt.grid(True)
-
+plt.xlabel("Episodes", fontsize=12)
+plt.ylabel("Moving Average Reward (window=10)", fontsize=12)
+plt.title("Moving Average Rewards Comparison", fontsize=14)
+plt.legend(fontsize=11)
+plt.grid(True, alpha=0.3)
 plt.tight_layout()
 plt.show()
 
