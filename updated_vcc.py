@@ -10,6 +10,7 @@ import ast
 from collections import deque
 import seaborn as sns
 from scipy import stats
+from scipy.interpolate import interp1d
 
 def load_sample_data(file_path="sample.csv"):
     """Load job scheduling data from sample.csv dataset"""
@@ -372,14 +373,14 @@ class PerformanceMetrics:
         self.window_size = window_size
         self.rewards = deque(maxlen=window_size)
         self.latencies = deque(maxlen=window_size)
-        self.energy_consumptions = deque(maxlen=window_size)
+        self.energy_consumptions = []  # Changed from deque to list for continuous data
         self.fairness_scores = deque(maxlen=window_size)
         self.priority_fulfillment = deque(maxlen=window_size)
         
     def update(self, reward, latency, energy, fairness, priority_fulfillment):
         self.rewards.append(reward)
         self.latencies.append(latency)
-        self.energy_consumptions.append(energy)
+        self.energy_consumptions.append(energy)  # Now appending to list instead of deque
         self.fairness_scores.append(fairness)
         self.priority_fulfillment.append(priority_fulfillment)
         
@@ -440,10 +441,29 @@ def plot_comparison(standard_metrics, weighted_metrics, save_path=None):
         plt.savefig(f"{save_path}_priority.png")
     plt.show()
     
-    # Figure 4: Energy consumption
+    # Figure 4: Energy consumption with interpolation
     plt.figure(figsize=(12, 6))
-    plt.plot(standard_metrics.energy_consumptions, label="Standard A3C", alpha=0.7, color='r')
-    plt.plot(weighted_metrics.energy_consumptions, label="Weighted A3C", alpha=0.7, color='b')
+    
+    # Convert energy data to numpy arrays for interpolation
+    standard_energy = np.array(standard_metrics.energy_consumptions)
+    weighted_energy = np.array(weighted_metrics.energy_consumptions)
+    
+    # Create x-axis points for interpolation
+    x_standard = np.linspace(0, len(standard_energy) - 1, len(standard_energy) * 10)
+    x_weighted = np.linspace(0, len(weighted_energy) - 1, len(weighted_energy) * 10)
+    
+    # Interpolate the data
+    f_standard = interp1d(np.arange(len(standard_energy)), standard_energy, kind='cubic')
+    f_weighted = interp1d(np.arange(len(weighted_energy)), weighted_energy, kind='cubic')
+    
+    # Plot interpolated data
+    plt.plot(x_standard, f_standard(x_standard), label="Standard A3C", alpha=0.7, color='r')
+    plt.plot(x_weighted, f_weighted(x_weighted), label="Weighted A3C", alpha=0.7, color='b')
+    
+    # Plot original points as markers
+    plt.scatter(np.arange(len(standard_energy)), standard_energy, color='r', alpha=0.3, s=10)
+    plt.scatter(np.arange(len(weighted_energy)), weighted_energy, color='b', alpha=0.3, s=10)
+    
     plt.title("Energy Consumption Over Time", fontsize=14)
     plt.xlabel("Episodes", fontsize=12)
     plt.ylabel("Energy", fontsize=12)
